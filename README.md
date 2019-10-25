@@ -21,3 +21,13 @@ After using Tensorflow, deactivate the virtual env:
 6) pip inst all --upgrade tensorflow
 7) Verify install: 
   python -c "import tensorflow as tf;print(tf.reduce_sum(tf.random.normal([1000, 1000])))"
+
+
+
+If the above commands do not work, use the following:
+
+1) mkdir ts1
+2) cd ts2
+3) python3.7 -m venv .
+4) pip install --upgrade pip
+5) pip install tensorflow
