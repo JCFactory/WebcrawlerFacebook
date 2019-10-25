@@ -17,3 +17,7 @@ see also: https://www.tensorflow.org/install/pip
 
 After using Tensorflow, deactivate the virtual env: 
 5) deactivate  # don't exit until you're done using TensorFlow
+
+6) pip inst all --upgrade tensorflow
+7) Verify install: 
+  python -c "import tensorflow as tf;print(tf.reduce_sum(tf.random.normal([1000, 1000])))"
