@@ -31,3 +31,11 @@ If the above commands do not work, use the following:
 3) python3.7 -m venv .
 4) pip install --upgrade pip
 5) pip install tensorflow
+
+
+Create virtualenv in Anaconda:
+
+1) conda create -n tensorenviron
+2) activate tensorenviron
+3) conda install tensorflow
+
