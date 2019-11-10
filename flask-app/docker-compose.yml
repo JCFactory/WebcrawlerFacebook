@@ -1,0 +1,9 @@
+version: '3'
+services:
+  keras:
+    build: ./
+    ports:
+      - '8888:8888'
+      - '5000:5000'
+    volumes:
+      - ./app:/app
