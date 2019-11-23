@@ -22,7 +22,7 @@ ENV PATH /opt/conda/envs/myapp/bin:$PATH
 RUN ls -latr
 # Launch the API
 #ENTRYPOINT ["python"]
-CMD ["bash", "-c", "source activate myapp && python ./reporting/app.py"]
+CMD ["bash", "-c", "source activate myapp && python ./app.py"]
 
 #CMD [ "source activate flask_env && python ./reporting/app.py" ]
 
