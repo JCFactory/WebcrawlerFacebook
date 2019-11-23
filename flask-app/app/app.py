@@ -1,12 +1,15 @@
 from flask import Flask
 import tensorflow
 from tensorflow import keras as k
+
+from .reporting.mailer import Mailer
 app = Flask(__name__)
 
 
 @app.route('/')
 def hello_world():
-    return 'Hello World!'
+    m = Mailer()
+    return m.test()
 
 
 if __name__ == '__main__':
