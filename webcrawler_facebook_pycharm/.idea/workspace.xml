@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5eb10d37-5f31-4faa-af32-09ae3e556c87" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../.ipynb_checkpoints/Sentiment_Training_KNN-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/../.ipynb_checkpoints/Sentiment_Training_KNN-checkpoint.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Sentiment_Training_KNN.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/../Sentiment_Training_KNN.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../flask-app/app/reporting/mailer.py" beforeDir="false" afterPath="$PROJECT_DIR$/../flask-app/app/reporting/mailer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../flask-app/app/tf_model/rnn_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/../flask-app/app/tf_model/rnn_model.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
