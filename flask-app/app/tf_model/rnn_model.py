@@ -1,3 +1,24 @@
+# read training data
+import tensorflow as tf
+from tensorflow import keras
+import pandas as pd
+import numpy as np
+import re
+import nltk
+from nltk.corpus import stopwords
+
+from numpy import array
+from keras.preprocessing.text import one_hot
+from keras.preprocessing.sequence import pad_sequences
+from keras.models import Sequential
+from keras.layers.core import Activation, Dropout, Dense
+from keras.layers import Flatten
+from keras.layers import GlobalMaxPooling1D
+from keras.layers.embeddings import Embedding
+from sklearn.model_selection import train_test_split
+from keras.preprocessing.text import Tokenizer
+
+import seaborn as sns
 
 class RnnModel:
     def test(self):
@@ -7,25 +28,6 @@ class RnnModel:
     # coding: utf-8
 
     # Build neural network
-
-    # read training data
-    import tensorflow as tf
-    import pandas as pd
-    import numpy as np
-    import re
-    import nltk
-    from nltk.corpus import stopwords
-
-    from numpy import array
-    from keras.preprocessing.text import one_hot
-    from keras.preprocessing.sequence import pad_sequences
-    from keras.models import Sequential
-    from keras.layers.core import Activation, Dropout, Dense
-    from keras.layers import Flatten
-    from keras.layers import GlobalMaxPooling1D
-    from keras.layers.embeddings import Embedding
-    from sklearn.model_selection import train_test_split
-    from keras.preprocessing.text import Tokenizer
 
     # df = pd.Dataframe()
     df_train = pd.read_csv('./measuring-customer-happiness/train_hp.csv', encoding='utf-8')
@@ -50,8 +52,6 @@ class RnnModel:
     frames = [df_happy, df_not_happy]
     df_train = pd.concat(frames)
     print(df_train)
-
-    import seaborn as sns
 
     sns.countplot(x='Is_Response', data=df_train)
 
