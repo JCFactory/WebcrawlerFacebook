@@ -28,7 +28,7 @@ class RnnModel:
     from keras.preprocessing.text import Tokenizer
 
     # df = pd.Dataframe()
-    df_train = pd.read_csv('./measuring-customer-happiness/train_hp.csv', encoding='utf-8')
+    df_train = pd.read_csv('../../../measuring-customer-happiness/train_hp.csv', encoding='utf-8')
     print(df_train.head(3))
 
     # df_test = pd.read_csv('./measuring-customer-happiness/test_hp.csv', encoding='utf-8')
