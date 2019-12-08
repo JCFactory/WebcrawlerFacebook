@@ -25,5 +25,36 @@ class FacebookApi:
             dictFb['time'].append(json_data['posts']['data'][i]['comments']['data'][i]['created_time'])
             # df.append({'comment': comment, 'person':person, 'time':time}, ignore_index=True)
         df = pd.DataFrame(dictFb, columns=['comment', 'person', 'time'])
-
         return df
+
+    def test_data(self):
+        df_facebook = self.callFacebookApi()
+        df_facebook.head()
+        sentiment = ''
+        j = 0
+        for test_post in df_facebook:
+            test_post = tokenizer.texts_to_sequences(test_post)
+            flat_list = []
+            for sublist in instance:
+                for item in sublist:
+                    flat_list.append(item)
+                    flat_list = [flat_list]
+                    test_post = pad_sequences(flat_list, padding='post', maxlen=maxlen)
+                    model.predict(test_post)
+
+                    if (model.predict(test_post) < 0.5):
+                        sentiment = 'negativ'
+                        df_facebook.insert(2, "Sentiment", sentiment, True)
+                    elif (model.predict(test_post) > 0.5):
+                        sentiment = 'positiv'
+                        df_facebook.insert(2, "Sentiment", sentiment, True)
+            ++j
+
+
+
+
+
+
+
+
+
