@@ -53,7 +53,7 @@ class RnnModel:
         self.simple_knn()
         self.cnn()
         self.rnn()
-            
+
     # Data Preprocessing
     def preprocess_text(self, sen):
         # Removing html tags
