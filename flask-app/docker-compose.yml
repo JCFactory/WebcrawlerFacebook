@@ -7,3 +7,6 @@ services:
       - '5000:5000'
     volumes:
       - ./fapp:/app
+      - conda-volume:/opt/conda/envs/
+volumes:
+  conda-volume:

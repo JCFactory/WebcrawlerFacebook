@@ -37,6 +37,8 @@ class RnnModel:
     model_Y = []
     model_X_train = []
     model_Y_train = []
+    model_X_test = []
+    model_Y_test = []
     model_history = None
     model_score = None
     model = None
@@ -70,7 +72,7 @@ class RnnModel:
         y = df_train['Is_Response']
         self.model_Y = np.array(list(map(lambda x: 1 if x == "happy" else 0, y)))
 
-        self.simple_knn()
+        self.do_embedding()
         self.cnn()
 
     # Data Preprocessing
@@ -94,18 +96,18 @@ class RnnModel:
 
 
     def do_embedding(self):
-        self.model_X_train, self., y_train, y_test = skl_tt_split(self.model_X, self.model_Y, test_size=0.20, random_state=42)
+        self.model_X_train, self.model_X_test, self.model_Y_train, self.model_Y_test = skl_tt_split(self.model_X, self.model_Y, test_size=0.20, random_state=42)
         # Prepare embedding layer
         tokenizer = Tokenizer(num_words=5000)
-        tokenizer.fit_on_texts(X_train)
+        tokenizer.fit_on_texts(self.model_X_train)
 
-        X_train = tokenizer.texts_to_sequences(X_train)
-        self. = tokenizer.texts_to_sequences(self.)
+        self.model_X_train = tokenizer.texts_to_sequences(self.model_X_train)
+        self.model_X_test = tokenizer.texts_to_sequences(self.model_X_test)
 
         # Adding 1 because of reserved 0 index
         self.vocab_size = len(tokenizer.word_index) + 1
-        self.model_X_train = pad_sequences(X_train, padding='post', maxlen=self.maxlen)
-        self.model_X_test = pad_sequences(self., padding='post', maxlen=self.maxlen)
+        self.model_X_train = pad_sequences(self.model_X_train, padding='post', maxlen=self.maxlen)
+        self.model_X_test = pad_sequences(self.model_X_test, padding='post', maxlen=self.maxlen)
 
         embeddings_dictionary = dict()
         glove_file = open(self.glove_file, encoding="utf8")
@@ -190,8 +192,8 @@ class RnnModel:
         model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['acc'])
         # # Model Training & Evaluation
 
-        self.model_history = model.fit(X_train, y_train, batch_size=128, epochs=6, verbose=1, validation_split=0.2)
-        self.model_score = model.evaluate(X_test, y_test, verbose=1)
+        self.model_history = model.fit(self.model_X_train, self.model_Y_train, batch_size=128, epochs=6, verbose=1, validation_split=0.2)
+        self.model_score = model.evaluate(self.model_X_test, self.model_Y_test, verbose=1)
 
         self.model = model
 
