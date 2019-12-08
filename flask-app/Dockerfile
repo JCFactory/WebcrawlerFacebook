@@ -15,7 +15,7 @@ RUN conda config --add channels conda-forge \
     && rm -rf /opt/conda/pkgs/*
 
 # Copy all files after to avoid rebuild the conda env each time
-COPY ./app/ /app/
+COPY ./fapp/ /app/
 
 # activate the fbcrawler environment
 ENV PATH /opt/conda/envs/fbcrawler/bin:$PATH
