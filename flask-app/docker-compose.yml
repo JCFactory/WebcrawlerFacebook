@@ -6,4 +6,4 @@ services:
       - '8888:8888'
       - '5000:5000'
     volumes:
-      - ./app:/app
+      - ./fapp:/app
