@@ -3,6 +3,7 @@ from fapppack.reporting.mailer import Mailer
 from fapppack.reporting.facebook_api import FacebookApi
 from fapppack.tf_model.rnn_model import RnnModel
 from pathlib import Path
+from keras.preprocessing.text import Tokenizer
 
 
 

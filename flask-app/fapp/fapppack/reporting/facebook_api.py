@@ -2,6 +2,8 @@ import json
 import requests
 import pandas as pd
 import datetime
+from keras.preprocessing.text import tokenizer
+from keras.preprocessing.sequence import pad_sequences
 
 
 class FacebookApi:
@@ -40,12 +42,12 @@ class FacebookApi:
                     flat_list.append(item)
                     flat_list = [flat_list]
                     test_post = pad_sequences(flat_list, padding='post', maxlen=maxlen)
-                    model.predict(test_post)
+                    self.model.predict(test_post)
 
-                    if (model.predict(test_post) < 0.5):
+                    if (self.model.predict(test_post) < 0.5):
                         sentiment = 'negativ'
                         df_facebook.insert(2, "Sentiment", sentiment, True)
-                    elif (model.predict(test_post) > 0.5):
+                    elif (self.model.predict(test_post) > 0.5):
                         sentiment = 'positiv'
                         df_facebook.insert(2, "Sentiment", sentiment, True)
             ++j

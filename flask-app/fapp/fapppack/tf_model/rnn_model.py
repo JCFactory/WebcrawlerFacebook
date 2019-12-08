@@ -51,6 +51,7 @@ class RnnModel:
 
     def predict(self, post):
         return self.model.predict(post)
+
     def run(self):
         # df = pd.Dataframe()
         df_train = pd.read_csv(self.train_hp_file, encoding='utf-8')
