@@ -15,7 +15,7 @@ from keras.layers.core import Activation, Dropout, Dense
 from keras.layers import Flatten
 from keras.layers import GlobalMaxPooling1D
 from keras.layers.embeddings import Embedding
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split as skl_tt_split
 from keras.preprocessing.text import Tokenizer
 from numpy import array
 from numpy import asarray
@@ -27,12 +27,29 @@ import seaborn as sns
 
 
 class RnnModel:
-    train_hp_file = '';
+    maxlen = 100
+    vocab_size = 0
 
-    def __init__(self, train_file):
+    train_hp_file = ''
+    test_hp_file = ''
+    glove_file = ''
+    model_X = []
+    model_Y = []
+    model_X_train = []
+    model_Y_train = []
+    model_history = None
+    model_score = None
+    model = None
+    embedding_matrix = None
+
+    def __init__(self, train_file, test_file, glove_file):
         self.train_hp_file = train_file
+        self.test_hp_file = test_file
+        self.glove_file = glove_file
 
-    def main(self):
+    def predict(self, post):
+        return self.model.predict(post)
+    def run(self):
         # df = pd.Dataframe()
         df_train = pd.read_csv(self.train_hp_file, encoding='utf-8')
         df_train = df_train[['Description', 'Is_Response']]
@@ -44,23 +61,22 @@ class RnnModel:
         frames = [df_happy, df_not_happy]
         df_train = pd.concat(frames)
         # Preprocessing
-        X = []
+
         sentences = list(df_train['Description'])
         for sen in sentences:
-            X.append(self.preprocess_text(sen))
+            self.model_X.append(self.preprocess_text(sen))
             
         # binary classification for happy and not_happy
         y = df_train['Is_Response']
-        y = np.array(list(map(lambda x: 1 if x == "happy" else 0, y)))
+        self.model_Y = np.array(list(map(lambda x: 1 if x == "happy" else 0, y)))
 
         self.simple_knn()
         self.cnn()
-        self.rnn()
 
     # Data Preprocessing
     def preprocess_text(self, sen):
         # Removing html tags
-        sentence = self.remove_tags(self, sen)
+        sentence = self.remove_tags(sen)
         # Remove punctuations and numbers
         sentence = re.sub('[^a-zA-Z]', ' ', sentence)
 
@@ -72,35 +88,27 @@ class RnnModel:
 
         return sentence
 
-
     def remove_tags(self, text):
         TAG_RE = re.compile(r'<[^>]+>')
         return TAG_RE.sub('', text)
 
-    
 
-    def simple_knn(self):
-        # 1) Simple Neural Network
-    
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
-    
+    def do_embedding(self):
+        self.model_X_train, self., y_train, y_test = skl_tt_split(self.model_X, self.model_Y, test_size=0.20, random_state=42)
         # Prepare embedding layer
         tokenizer = Tokenizer(num_words=5000)
         tokenizer.fit_on_texts(X_train)
-    
+
         X_train = tokenizer.texts_to_sequences(X_train)
-        X_test = tokenizer.texts_to_sequences(X_test)
-    
+        self. = tokenizer.texts_to_sequences(self.)
+
         # Adding 1 because of reserved 0 index
-        vocab_size = len(tokenizer.word_index) + 1
-    
-        maxlen = 100
-    
-        X_train = pad_sequences(X_train, padding='post', maxlen=maxlen)
-        X_test = pad_sequences(X_test, padding='post', maxlen=maxlen)
-   
+        self.vocab_size = len(tokenizer.word_index) + 1
+        self.model_X_train = pad_sequences(X_train, padding='post', maxlen=self.maxlen)
+        self.model_X_test = pad_sequences(self., padding='post', maxlen=self.maxlen)
+
         embeddings_dictionary = dict()
-        glove_file = open('./glove.twitter.27B/glove.twitter.27B.100d.txt', encoding="utf8")
+        glove_file = open(self.glove_file, encoding="utf8")
 
         for line in glove_file:
             records = line.split()
@@ -109,35 +117,71 @@ class RnnModel:
             embeddings_dictionary[word] = vector_dimensions
         glove_file.close()
 
-        embedding_matrix = zeros((vocab_size, 100))
+        self.embedding_matrix = zeros((self.vocab_size, 100))
         for word, index in tokenizer.word_index.items():
             embedding_vector = embeddings_dictionary.get(word)
             if embedding_vector is not None:
-                embedding_matrix[index] = embedding_vector
+                self.embedding_matrix[index] = embedding_vector
 
-        model = Sequential()
-        embedding_layer = Embedding(vocab_size, 100, weights=[embedding_matrix], input_length=maxlen, trainable=False)
-        model.add(embedding_layer)
-
-        model.add(Flatten())
-        model.add(Dense(1, activation='sigmoid'))
-
-        model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['acc'])
-
-        # # Model training
-
-        history = model.fit(X_train, y_train, batch_size=128, epochs=6, verbose=1, validation_split=0.2)
-
-        # # Evaluation of model
-
-        score = model.evaluate(X_test, y_test, verbose=1)
+    # def simple_knn(self):
+    #     # 1) Simple Neural Network
+    #
+    #     X_train, X_test, y_train, y_test = skl_tt_split(self.model_X, self.model_Y, test_size=0.20, random_state=42)
+    #
+    #     # Prepare embedding layer
+    #     tokenizer = Tokenizer(num_words=5000)
+    #     tokenizer.fit_on_texts(X_train)
+    #
+    #     X_train = tokenizer.texts_to_sequences(X_train)
+    #     X_test = tokenizer.texts_to_sequences(X_test)
+    #
+    #     # Adding 1 because of reserved 0 index
+    #     vocab_size = len(tokenizer.word_index) + 1
+    #
+    #     maxlen = 100
+    #
+    #     X_train = pad_sequences(X_train, padding='post', maxlen=maxlen)
+    #     X_test = pad_sequences(X_test, padding='post', maxlen=maxlen)
+    #
+    #     embeddings_dictionary = dict()
+    #     glove_file = open(self.glove_file, encoding="utf8")
+    #
+    #     for line in glove_file:
+    #         records = line.split()
+    #         word = records[0]
+    #         vector_dimensions = asarray(records[1:], dtype='float32')
+    #         embeddings_dictionary[word] = vector_dimensions
+    #     glove_file.close()
+    #
+    #     embedding_matrix = zeros((vocab_size, 100))
+    #     for word, index in tokenizer.word_index.items():
+    #         embedding_vector = embeddings_dictionary.get(word)
+    #         if embedding_vector is not None:
+    #             embedding_matrix[index] = embedding_vector
+    #
+    #     model = Sequential()
+    #     embedding_layer = Embedding(vocab_size, 100, weights=[embedding_matrix], input_length=maxlen, trainable=False)
+    #     model.add(embedding_layer)
+    #
+    #     model.add(Flatten())
+    #     model.add(Dense(1, activation='sigmoid'))
+    #
+    #     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['acc'])
+    #
+    #     # # Model training
+    #
+    #     self.model_history = model.fit(X_train, y_train, batch_size=128, epochs=6, verbose=1, validation_split=0.2)
+    #
+    #     # # Evaluation of model
+    #
+    #     self.model_score = model.evaluate(X_test, y_test, verbose=1)
 
 
     def cnn(self):
         #2) Convolutional Neural Network
         model = Sequential()
 
-        embedding_layer = Embedding(vocab_size, 100, weights=[embedding_matrix], input_length=maxlen, trainable=False)
+        embedding_layer = Embedding(self.vocab_size, 100, weights=[self.embedding_matrix], input_length=self.maxlen, trainable=False)
         model.add(embedding_layer)
 
         model.add(Conv1D(128, 5, activation='relu'))
@@ -146,54 +190,23 @@ class RnnModel:
         model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['acc'])
         # # Model Training & Evaluation
 
-        history = model.fit(_train, y_train, batch_size=128, epochs=6, verbose=1, validation_split=0.2)
-        score = model.evaluate(X_test, y_test, verbose=1)
+        self.model_history = model.fit(X_train, y_train, batch_size=128, epochs=6, verbose=1, validation_split=0.2)
+        self.model_score = model.evaluate(X_test, y_test, verbose=1)
 
-        plt.plot(history.history['acc'])
-        plt.plot(history.history['val_acc'])
+        self.model = model
 
-        plt.title('model accuracy')
-        plt.ylabel('accuracy')
-        plt.xlabel('epoch')
-        plt.legend(['train', 'test'], loc='upper left')
-        plt.show()
 
-        plt.plot(history.history['loss'])
-        plt.plot(history.history['val_loss'])
+    # def rnn(self):
+    # #3) Recurrent Neural Network: LSTM (Long Short Term Memory network)
+    #     model = Sequential()
+    #     embedding_layer = Embedding(vocab_size, 100, weights=[embedding_matrix], input_length=maxlen, trainable=False)
+    #     model.add(embedding_layer)
+    #     model.add(LSTM(128))
+    #     model.add(Dense(1, activation='sigmoid'))
+    #     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['acc'])
+    #     # # Model Training & Evaluation
+    #     history = model.fit(X_train, y_train, batch_size=128, epochs=6, verbose=1, validation_split=0.2)
+    #     score = model.evaluate(X_test, y_test, verbose=1)
 
-        plt.title('model loss')
-        plt.ylabel('loss')
-        plt.xlabel('epoch')
-        plt.legend(['train', 'test'], loc='upper left')
-        plt.show()
-
-    def rnn(self):
-    #3) Recurrent Neural Network: LSTM (Long Short Term Memory network)
-        model = Sequential()
-        embedding_layer = Embedding(vocab_size, 100, weights=[embedding_matrix], input_length=maxlen, trainable=False)
-        model.add(embedding_layer)
-        model.add(LSTM(128))
-        model.add(Dense(1, activation='sigmoid'))
-        model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['acc'])
-        # # Model Training & Evaluation
-        history = model.fit(X_train, y_train, batch_size=128, epochs=6, verbose=1, validation_split=0.2)
-        score = model.evaluate(X_test, y_test, verbose=1)
-        plt.plot(history.history['acc'])
-        plt.plot(history.history['val_acc'])
-
-        plt.title('model accuracy')
-        plt.ylabel('accuracy')
-        plt.xlabel('epoch')
-        plt.legend(['train', 'test'], loc='upper left')
-        plt.show()
-
-        plt.plot(history.history['loss'])
-        plt.plot(history.history['val_loss'])
-
-        plt.title('model loss')
-        plt.ylabel('loss')
-        plt.xlabel('epoch')
-        plt.legend(['train', 'test'], loc='upper left')
-        plt.show()
 
 
