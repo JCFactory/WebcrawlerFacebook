@@ -11,7 +11,7 @@ from pathlib import Path
 train_csv = Path("./measuring-customer-happiness/train_hp.csv")
 
 test_csv = Path("./measuring-customer-happiness/test_hp.csv")
-glove_file = Path('./glove.twitter.27B/glove.twitter.27B.100d.txt')
+glove_file = Path('./glove.twitter.27B.100d.txt')
 rnn_model = RnnModel(train_csv.absolute(), test_csv.absolute(), glove_file.absolute())
 
 rnn_model.run()
