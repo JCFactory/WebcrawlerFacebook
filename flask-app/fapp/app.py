@@ -19,7 +19,7 @@ rnn_model.run()
 # FBApi
 fbapi = FacebookApi(rnn_model)
 # Auswertung
-
+fbapi.analyze()
 # Mailversand
 
 
