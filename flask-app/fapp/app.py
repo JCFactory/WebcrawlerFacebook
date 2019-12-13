@@ -10,7 +10,7 @@ from keras.preprocessing.text import Tokenizer
 # Trainingsmodel
 
 train_csv = Path("./measuring-customer-happiness/train_hp.csv")
-
+fakecsv = Path("./FakeData.csv")
 test_csv = Path("./measuring-customer-happiness/test_hp.csv")
 glove_file = Path('./glove.twitter.27B.100d.txt')
 rnn_model = RnnModel(train_csv.absolute(), test_csv.absolute(), glove_file.absolute())
@@ -19,7 +19,7 @@ rnn_model.run()
 # FBApi
 fbapi = FacebookApi(rnn_model)
 # Auswertung
-
+fbapi.analyze()
 # Mailversand
 
 
