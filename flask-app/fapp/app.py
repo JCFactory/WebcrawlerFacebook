@@ -2,6 +2,7 @@ from flask import Flask
 from fapppack.reporting.mailer import Mailer
 from fapppack.reporting.facebook_api import FacebookApi
 from fapppack.tf_model.rnn_model import RnnModel
+from fapppack.reporting.report import Report
 from pathlib import Path
 from keras.preprocessing.text import Tokenizer
 
@@ -19,17 +20,20 @@ rnn_model.run()
 # FBApi
 fbapi = FacebookApi(rnn_model)
 # Auswertung
-fbapi.analyze()
-# Mailversand
+data = fbapi.analyze()
 
+rep = Report(fakecsv.absolute(), data)
+summary = rep.execute_evaluation()
+#Mailversand
+mail = Mailer()
+mail.sendMail(summary)
 
 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
-    m = Mailer()
-    return m.test()
+    return "WELCOME!!!!"
 
 
 if __name__ == '__main__':
