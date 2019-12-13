@@ -2,19 +2,46 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-import datetime as dt
+import datetime as datetime
+from datetime import timedelta
 from fpdf import FPDF
 from datetime import date
 
 
 class Report:
     fakecsv = None
+    report_data = None
+    df = None
 
-    def __init__(self, fakecsv):
+    def __init__(self, fakecsv, report=None):
         self.fakecsv = fakecsv
+        self.report_data = report
+
+    def execute_evaluation(self):
+        summary = """ Report created:
+            ## Total new Comments: {}
+            ## Postive: {}
+            ## Negative: {}
+            ## Negative Percent: {}
+            ## Positive Percent: {}"""
+
+        return summary.format(self.report_data['total'], self.report_data['positive'], self.report_data['negative'], self.report_data['negativepercent'], self.report_data['positivepercent'])
+
+        # summary = """ Report erstellt:
+        #     ## Gesamt Kommentare: """+self.report_data['total'] + """
+        #     ## Postive: """+self.report_data['positive'] + """
+        #     ## Negative: """+self.report_data['negative']
+        #
+        # return summary
+        
+    def set_dataframe(self, df_sent):
+
+
+        self.df = df
+
 
     #Variablen
-    def initiliaze(self):
+    def execute_fakereport(self):
         count_minus1_neg = 0
         count_minus7_neg = 0
         count_minus31_neg = 0
@@ -42,7 +69,7 @@ class Report:
         df['minute'] = fakedata[:, 9]
         df['weekhour'] = fakedata[:, 10]
         df['sentiment'] = fakedata[:, 11]
-        df['real_date'] = pd.TimedeltaIndex(df['date'], unit='d') + dt.datetime(1900,1,1)
+        df['real_date'] = pd.TimedeltaIndex(df['date'], unit='d') + datetime.datetime(1900,1,1)
 
         array_minus1_neg = df[(df.real_date > minus1) & (df.sentiment == 2)].count()
         array_minus7_neg = df[(df.real_date > minus7) & (df.sentiment == 2)].count()
