@@ -3,7 +3,7 @@ services:
   keras:
     build: ./
     ports:
-      - '8888:8080'
+      - '8080:8080'
     volumes:
       - ./fapp:/app
       - conda-volume:/opt/conda/envs/

@@ -22,35 +22,12 @@ class FacebookApi:
 
         for i in range(len(json_data['posts']['data'])):
             for j in range(len(json_data['posts']['data'][i]['comments']['data'])):
-                dictFb['comment'].append(json_data['posts']['data'][i]['comments']['data'][j]['message'])
+                message = self.model.preprocess_text(json_data['posts']['data'][i]['comments']['data'][j]['message'])
+                dictFb['comment'].append(message)
                 dictFb['time'].append(json_data['posts']['data'][i]['comments']['data'][j]['created_time'])
 
         df = pd.DataFrame(dictFb, columns=['comment', 'time'])
         return df
-
-    # def analyze(self):
-    #     df_comments = self.callFacebookApi()
-    #     tokenizer = Tokenizer(num_words=5000)
-    #     for el in df_comments['posts']:
-    #         el = tokenizer.texts_to_sequences(el)
-    #         flat_list = []
-    #         for sublist in el:
-    #             for item in sublist:
-    #                 flat_list.append(item)
-    #         flat_list = [flat_list]
-    #         el = pad_sequences(flat_list, padding='post', maxlen=100)
-    #
-    #         predictvalue = self.model.predict(el)
-    #
-    #         if (predictvalue < 0.5):
-    #             sentiment = 'negativ'
-    #             df_comments.insert(2, "Sentiment", sentiment, True)
-    #         elif (predictvalue > 0.5):
-    #             sentiment = 'positiv'
-    #             df_comments.insert(2, "Sentiment", sentiment, True)
-    #     print(df_comments)
-    #     return df_comments
-
 
     def analyze(self):
         negcount = 0
@@ -60,37 +37,27 @@ class FacebookApi:
         reportneg = False
 
         df_comments = self.callFacebookApi()
-
-        tokenizer = Tokenizer(num_words=5000)
+        sentiment_series = []
         for element in df_comments['comment']:
-            print(element)
-            print(type(element))
-            tokenizer.fit_on_texts(texts=element)
-            el = tokenizer.texts_to_sequences(texts=list(element))
-            flat_list = []
-            for sublist in el:
-                for item in sublist:
-                    flat_list.append(item)
-            flat_list = [flat_list]
-            el = pad_sequences(flat_list, padding='post', maxlen=100)
-
-            predictvalue = self.model.predict(el)
+            predictvalue = self.model.predict(element)
+            predictvalue = predictvalue[0]
 
             if (predictvalue <= 0.5):
                 negcount += 1
                 negseries += 1
                 sentiment = 'negativ'
-                df_comments.insert(2, "Sentiment", sentiment, True)
+                sentiment_series.append(sentiment)
 
             elif (predictvalue > 0.5):
                 poscount += 1
                 negseries = 0
                 sentiment = 'positiv'
-                df_comments.insert(2, "Sentiment", sentiment, True)
-
+                sentiment_series.append(sentiment)
             if (negseries == 5 and reportneg == False):
                 reportneg = True
 
+
+        df_comments.insert(2, "Sentiment", sentiment_series)
         sentiment_object = {'df_comments': df_comments, 'negative': negcount, 'positive': poscount, 'total': negcount + poscount,
                 'reportnegative': reportneg,
                 'negativepercent': negcount / (negcount + poscount) * 100,

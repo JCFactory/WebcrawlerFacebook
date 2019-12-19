@@ -22,7 +22,7 @@ ENV PATH /opt/conda/envs/fbcrawler/bin:$PATH
 RUN ls -latr
 # Launch the API
 #ENTRYPOINT ["python"]
-CMD ["bash", "-c", "source activate fbcrawler && pip install fpdf && python ./app.py"]
+CMD ["bash", "-c", "source activate fbcrawler && python ./app.py"]
 
 #CMD [ "source activate flask_env && python ./reporting/app.py" ]
 
