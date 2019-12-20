@@ -25,6 +25,7 @@ data = fbapi.analyze()
 rep = Report(fakecsv.absolute(), data)
 summary = rep.execute_evaluation()
 #Mailversand
+#todo: include pdf-path and attach to mail
 mail = Mailer()
 mail.sendMail(summary)
 
