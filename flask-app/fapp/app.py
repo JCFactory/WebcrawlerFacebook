@@ -1,7 +1,7 @@
 from flask import Flask
 from fapppack.reporting.mailer import Mailer
 from fapppack.reporting.facebook_api import FacebookApi
-from fapppack.tf_model.rnn_model import RnnModel
+from fapppack.tf_model.training_model import RnnModel
 from fapppack.reporting.report import Report
 from pathlib import Path
 from keras.preprocessing.text import Tokenizer
@@ -38,4 +38,4 @@ def index():
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", port=8080)

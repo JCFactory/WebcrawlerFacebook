@@ -197,6 +197,7 @@ class RnnModel:
         self.model_score = model.evaluate(self.model_X_test, self.model_Y_test, verbose=1)
 
         self.model = model
+        print(model.summary())
 
 
     # def rnn(self):
