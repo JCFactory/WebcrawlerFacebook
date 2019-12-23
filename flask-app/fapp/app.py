@@ -36,7 +36,6 @@ def execute_reports(incremental=False):
     rep = Report(fakecsv.absolute(), data)
     summary = rep.execute_evaluation()
     # Mailversand
-    # todo: include pdf-path and attach to mail
     mail = Mailer()
     mail.sendMail(rep)
     return summary
