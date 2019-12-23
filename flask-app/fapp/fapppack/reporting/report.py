@@ -13,7 +13,7 @@ class Report:
     report_data = None
     df = None
 
-    def __init__(self, fakecsv, report=None):
+    def __init__(self, fakecsv, report):
         self.fakecsv = fakecsv
         self.report_data = report
 
@@ -35,9 +35,7 @@ class Report:
         # return summary
         
     def set_dataframe(self, df_sent):
-
-
-        self.df = df
+        self.df = df_sent
 
 
     #Variablen

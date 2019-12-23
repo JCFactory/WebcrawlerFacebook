@@ -28,12 +28,13 @@ import seaborn as sns
 
 
 class RnnModel:
-    maxlen = 100
+    maxlen = 50
     vocab_size = 0
 
     train_hp_file = ''
     test_hp_file = ''
     glove_file = ''
+    glove_files = []
     model_X = []
     model_Y = []
     model_X_train = []
@@ -46,10 +47,11 @@ class RnnModel:
     embedding_matrix = None
     tokenizer = None
 
-    def __init__(self, train_file, test_file, glove_file):
+    def __init__(self, train_file, test_file, glove_file, glove_files=None):
         self.train_hp_file = train_file
         self.test_hp_file = test_file
         self.glove_file = glove_file
+        self.glove_files = glove_files
 
     def tokenize(self, text):
         return self.tokenizer.texts_to_sequences(text)
@@ -135,16 +137,17 @@ class RnnModel:
         self.model_X_test = pad_sequences(self.model_X_test, padding='post', maxlen=self.maxlen)
 
         embeddings_dictionary = dict()
-        glove_file = open(self.glove_file, encoding="utf8")
+        for glove_file in self.glove_files:
+            glove_file = open(glove_file, encoding="utf8")
 
-        for line in glove_file:
-            records = line.split()
-            word = records[0]
-            vector_dimensions = asarray(records[1:], dtype='float32')
-            embeddings_dictionary[word] = vector_dimensions
-        glove_file.close()
+            for line in glove_file:
+                records = line.split()
+                word = records[0]
+                vector_dimensions = asarray(records[1:], dtype='float32')
+                embeddings_dictionary[word] = vector_dimensions
+            glove_file.close()
 
-        self.embedding_matrix = zeros((self.vocab_size, 100))
+        self.embedding_matrix = zeros((self.vocab_size, self.maxlen))
         for word, index in self.tokenizer.word_index.items():
             embedding_vector = embeddings_dictionary.get(word)
             if embedding_vector is not None:
@@ -168,7 +171,7 @@ class RnnModel:
         print(model.summary())
 
         bat_size = 32
-        max_epochs = 6
+        max_epochs = 10
         print("\nStarting training ")
         model.fit(self.model_X_train, self.model_Y_train, epochs=max_epochs,
                   batch_size=bat_size, shuffle=True, verbose=1)

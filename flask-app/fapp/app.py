@@ -7,34 +7,54 @@ from pathlib import Path
 from keras.preprocessing.text import Tokenizer
 
 
-
 # Trainingsmodel
 
 train_csv = Path("./measuring-customer-happiness/train_hp.csv")
 fakecsv = Path("./FakeData.csv")
 test_csv = Path("./measuring-customer-happiness/test_hp.csv")
-glove_file = Path('./glove.twitter.27B.100d.txt')
-rnn_model = RnnModel(train_csv.absolute(), test_csv.absolute(), glove_file.absolute())
+glove_file = Path('./glove/glove.twitter.27B.50d.txt')
+glove_files = [
+    Path('./glove/glove.twitter.27B.50d.txt_00'),
+    Path('./glove/glove.twitter.27B.50d.txt_01'),
+    Path('./glove/glove.twitter.27B.50d.txt_02'),
+    Path('./glove/glove.twitter.27B.50d.txt_03'),
+    Path('./glove/glove.twitter.27B.50d.txt_04'),
+    Path('./glove/glove.twitter.27B.50d.txt_05')
+]
+rnn_model = RnnModel(train_csv.absolute(), test_csv.absolute(), glove_file.absolute(), glove_files=glove_files)
 
 rnn_model.run()
+
+
 # FBApi
-fbapi = FacebookApi(rnn_model)
-# Auswertung
-data = fbapi.analyze()
 
-rep = Report(fakecsv.absolute(), data)
-summary = rep.execute_evaluation()
-#Mailversand
-#todo: include pdf-path and attach to mail
-mail = Mailer()
-mail.sendMail(summary)
+def execute_reports(incremental=False):
+    fbapi = FacebookApi(rnn_model)
+    # Auswertung
+    data = fbapi.analyze(incremental=incremental)
 
+    rep = Report(fakecsv.absolute(), data)
+    summary = rep.execute_evaluation()
+    # Mailversand
+    # todo: include pdf-path and attach to mail
+    # mail = Mailer()
+    # mail.sendMail(summary)
+    return summary
+
+
+execute_reports()
 
 app = Flask(__name__)
+
 
 @app.route('/')
 def index():
     return "WELCOME!!!!"
+
+
+@app.route('/report')
+def report():
+    return execute_reports()
 
 
 if __name__ == '__main__':

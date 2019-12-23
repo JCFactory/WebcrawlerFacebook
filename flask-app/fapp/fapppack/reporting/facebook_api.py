@@ -14,7 +14,7 @@ class FacebookApi:
     def __init__(self, webc_model):
         self.model = webc_model
 
-    def callFacebookApi(self):
+    def callFacebookApi(self, incremental=False):
         url_long = "https://graph.facebook.com/v5.0/me?fields=id%2Cname%2Cposts%7Bcomments%7D&access_token=EAAlcIv35CUUBANREEygggKozZBFTNubNFhwuDn0u3MDI1jHz4PYRGirDFxz7MoSMTz3AHu6ZCQdT0oBp0cM3a30fGzw1pfb27C6H5OGn5jxiV49TqK8yaBiZA6DKZAeR3r0yzGGFFMGZAGmf6lMDeh8elMMGFZA5z4pk8KfQ2uiDZAZB67gt1nfh"
         response = requests.get(url_long)
         json_data = json.loads(response.text)
@@ -29,14 +29,14 @@ class FacebookApi:
         df = pd.DataFrame(dictFb, columns=['comment', 'time'])
         return df
 
-    def analyze(self):
+    def analyze(self, incremental=False):
         negcount = 0
         poscount = 0
         negseries = 0
 
         reportneg = False
 
-        df_comments = self.callFacebookApi()
+        df_comments = self.callFacebookApi(incremental=incremental)
         sentiment_series = []
         for element in df_comments['comment']:
             predictvalue = self.model.predict(element)

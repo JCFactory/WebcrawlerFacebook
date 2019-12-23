@@ -7,5 +7,7 @@ services:
     volumes:
       - ./fapp:/app
       - conda-volume:/opt/conda/envs/
+    environment:
+      - RELOAD_FB=600
 volumes:
   conda-volume:
