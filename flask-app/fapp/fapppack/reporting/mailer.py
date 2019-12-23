@@ -9,8 +9,7 @@ from email.mime.text import MIMEText
 class Mailer:
         # # Send email
 
-
-    def sendMail(self):
+    def sendMail(self, summary, attachment_pdf = None):
         subject = "An email with attachment from Python"
         body = "This is an email with attachment sent from Python"
         receiver_email = "burghard.lachmann@gmail.com"
@@ -27,7 +26,8 @@ class Mailer:
         # Add body to email
         message.attach(MIMEText(body, "plain"))
 
-        filename = "PM-BigData-6 V1.pdf"  # In same directory as script
+#         filename = "PM-BigData-6 V1.pdf"  # In same directory as script
+        filename = attachment_pdf  # In same directory as script
 
         # Open PDF file in binary mode
         with open(filename, "rb") as attachment:
