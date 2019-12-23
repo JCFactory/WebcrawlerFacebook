@@ -37,8 +37,8 @@ def execute_reports(incremental=False):
     summary = rep.execute_evaluation()
     # Mailversand
     # todo: include pdf-path and attach to mail
-    # mail = Mailer()
-    # mail.sendMail(summary)
+    mail = Mailer()
+    mail.sendMail(rep)
     return summary
 
 

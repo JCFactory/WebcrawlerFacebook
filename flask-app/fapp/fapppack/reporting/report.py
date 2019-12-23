@@ -2,10 +2,11 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-import datetime as datetime
-from datetime import timedelta
+import matplotlib.dates as md
+import datetime as dt
 from fpdf import FPDF
-from datetime import date
+from datetime import date, datetime, timedelta
+from pandas.plotting import register_matplotlib_converters
 
 
 class Report:
@@ -16,6 +17,10 @@ class Report:
     def __init__(self, fakecsv, report):
         self.fakecsv = fakecsv
         self.report_data = report
+        self.dataimport()
+        self.weekplots(df)
+        self.dayplot(df)
+        self.pdfgenerator(df)
 
     def execute_evaluation(self):
         summary = """ Report created:
@@ -38,8 +43,13 @@ class Report:
         self.df = df_sent
 
 
-    #Variablen
+   #Variablen
     def execute_fakereport(self):
+
+        return pdf
+
+    def dataimport(self):
+        # Variables
         count_minus1_neg = 0
         count_minus7_neg = 0
         count_minus31_neg = 0
@@ -49,14 +59,20 @@ class Report:
         count_minus31_pos = 0
         count_minus365_pos = 0
         now = datetime.now()
+        minus1 = 0
+        minus7 = 0
+        minus31 = 0
+        minus365 = 0
+        # Create date parameter
+        df = pd.DataFrame()
         minus1 = datetime.today() - timedelta(days=1)
         minus7 = datetime.today() - timedelta(days=7)
         minus31 = datetime.today() - timedelta(days=31)
         minus365 = datetime.today() - timedelta(days=365)
 
-        fakedata = np.loadtxt(self.fakecsv, delimiter=';')
+        # Read demo data into dataframe
+        fakedata = np.loadtxt('FakeData.csv', delimiter=';')
 
-        df=pd.DataFrame()
         df['id'] = fakedata[:, 0]
         df['date'] = fakedata[:, 1]
         df['month'] = fakedata[:, 2]
@@ -67,8 +83,113 @@ class Report:
         df['minute'] = fakedata[:, 9]
         df['weekhour'] = fakedata[:, 10]
         df['sentiment'] = fakedata[:, 11]
-        df['real_date'] = pd.TimedeltaIndex(df['date'], unit='d') + datetime.datetime(1900,1,1)
+        df['real_date'] = pd.TimedeltaIndex(df['date'], unit='d') + dt.datetime(1900, 1, 1)
+        df['real_time'] = pd.to_timedelta(df["hour"], unit='h')
+        df['real_datetime'] = pd.to_datetime(df['real_date'] + df['real_time'])
+        return (minus1, minus7, minus31, minus365)
+        return (count_minus1_neg, count_minus7_neg, count_minus31_neg, count_minus365_neg)
+        return (count_minus1_pos, count_minus7_pos, count_minus31_pos, count_minus365_neg)
+        return (df)
 
+    def weekplots(self, df):
+        # Prepares the dataframes for the weekplots
+        df_week2 = df.copy()
+        df_week2.drop(df_week2.columns.difference(['sentiment','weekhour','kw','real_datetime']), 1, inplace=True)
+        kw_now = datetime.date(now).isocalendar()[1]
+        df_week2.drop(df_week2[df_week2['kw'] < kw_now - 8].index, inplace = True)
+        df_week2.drop(df_week2[df_week2['kw'] > kw_now - 1].index, inplace = True)
+        df_week2["kw"] = df_week2["kw"].astype(int)
+        df_week1 = df_week2.copy()
+        df_week1.drop(df_week1[df_week1['sentiment'] == 1].index, inplace = True)
+        df_week2.drop(df_week2.columns.difference(['weekhour','kw']), 1, inplace=True)
+        df_week1.drop(df_week1.columns.difference(['weekhour','kw']), 1, inplace=True)
+
+        # Creates the weekplot 1
+        sns.set(style="white", rc={"axes.facecolor": (0, 0, 0, 0)})
+
+        pal = sns.cubehelix_palette(10, rot=-.25, light=.7)
+        weekplot1 = sns.FacetGrid(df_week1, row="kw", hue="kw", aspect=10, height=0.75, palette=pal)
+
+        # Draw the densities in a few steps
+        weekplot1.map(sns.kdeplot, "weekhour", clip_on=False, shade=True, alpha=1, lw=1.5, bw=.2)
+        weekplot1.map(sns.kdeplot, "weekhour", clip_on=False, color="w", lw=2, bw=.2)
+        weekplot1.map(plt.axhline, y=0, lw=2, clip_on=False)
+
+        # Define and use a simple function to label the plot in axes coordinates
+        def label(self, weekhour, color, label):
+            ax = plt.gca()
+            ax.text(0, .2, label, fontweight="bold", color=color,
+                    ha="left", va="center", transform=ax.transAxes)
+
+        weekplot1.map(label, "weekhour")
+
+        # Set the subplots to overlap
+        weekplot1.fig.subplots_adjust(hspace=-0.5)
+
+        # Remove axes details that don't play well with overlap
+        weekplot1.set_titles("")
+        weekplot1.set(yticks=[])
+        weekplot1.axes[4,0].set_ylabel('Kalenderwoche')
+        weekplot1.axes[7,0].set_xlabel('Wochenstunde 7x24')
+        weekplot1.despine(bottom=True, left=True)
+
+        weekplot1.savefig("WeekPlot1.png")
+
+        # Creates the weekplot 2
+        weekplot2 = sns.FacetGrid(df_week2, row="kw", hue="kw", aspect=10, height=0.75, palette=pal)
+
+        # Draw the densities in a few steps
+        weekplot2.map(sns.kdeplot, "weekhour", clip_on=False, shade=True, alpha=1, lw=1.5, bw=.2)
+        weekplot2.map(sns.kdeplot, "weekhour", clip_on=False, color="w", lw=2, bw=.2)
+        weekplot2.map(plt.axhline, y=0, lw=2, clip_on=False)
+
+        weekplot2.map(label, "weekhour")
+
+        # Set the subplots to overlap
+        weekplot2.fig.subplots_adjust(hspace=-0.5)
+
+        # Remove axes details that don't play well with overlap
+        weekplot2.set_titles("")
+        weekplot2.set(yticks=[])
+        weekplot2.axes[4,0].set_ylabel('Kalenderwoche')
+        weekplot2.axes[7,0].set_xlabel('Wochenstunde 7x24')
+        weekplot2.despine(bottom=True, left=True)
+
+        weekplot2.savefig("WeekPlot2.png")
+
+    def dayplot(self, df):
+        # Prepares the dataframe for the dayplot
+        df_day = df.copy()
+        df_day.drop(df_day.columns.difference(['sentiment', 'real_datetime']), 1, inplace=True)
+        minus2 = datetime.today() - timedelta(days=2)
+        df_day.drop(df_day[df_day['real_datetime'] < minus2].index, inplace=True)
+        df_day.drop(df_day[df_day['real_datetime'] > now].index, inplace=True)
+        df_day_sum = df_day.groupby(['real_datetime', 'sentiment']).size().unstack(fill_value=0)
+        df_day_sum.columns = ['pos', 'neg']
+
+        # Creates the dayplot
+        plt.figure()
+        sns.set(style="whitegrid")
+        colors = ["#01355B", "#FFC000"]
+        dayplot = sns.lineplot(data=df_day_sum, palette=(colors), linewidth=2.5)
+        dayplot.xaxis.set_major_formatter(md.DateFormatter('%H:%M'))
+        dayplot.set_ylabel('Anzahl')
+        dayplot.set_xlabel('Uhrzeit')
+        dayplotfigure = dayplot.get_figure()
+        dayplotfigure.savefig("DayPlot.png")
+
+    def pdfgenerator(self, df):
+        # Todays date
+        today = date.today()
+        strtoday = today.strftime("%d.%m.%Y")
+
+        # variables
+        minus1 = datetime.today() - timedelta(days=1)
+        minus7 = datetime.today() - timedelta(days=7)
+        minus31 = datetime.today() - timedelta(days=31)
+        minus365 = datetime.today() - timedelta(days=365)
+
+        # Counting different timeframes for the reporting tiles
         array_minus1_neg = df[(df.real_date > minus1) & (df.sentiment == 2)].count()
         array_minus7_neg = df[(df.real_date > minus7) & (df.sentiment == 2)].count()
         array_minus31_neg = df[(df.real_date > minus31) & (df.sentiment == 2)].count()
@@ -79,113 +200,83 @@ class Report:
         count_minus31_neg = array_minus31_neg[0]
         count_minus365_neg = array_minus365_neg[0]
 
-        array_minus1_pos = df[(df.real_date > minus1) & (df.sentiment == 1)].count()
-        array_minus7_pos = df[(df.real_date > minus7) & (df.sentiment == 1)].count()
-        array_minus31_pos = df[(df.real_date > minus31) & (df.sentiment == 1)].count()
-        array_minus365_pos = df[(df.real_date > minus365) & (df.sentiment == 1)].count()
+        array_minus1_ges = df[(df.real_date > minus1)].count()
+        array_minus7_ges = df[(df.real_date > minus7)].count()
+        array_minus31_ges = df[(df.real_date > minus31)].count()
+        array_minus365_ges = df[(df.real_date > minus365)].count()
 
-        count_minus1_pos = array_minus1_pos[0]
-        count_minus7_pos = array_minus7_pos[0]
-        count_minus31_pos = array_minus31_pos[0]
-        count_minus365_pos = array_minus365_pos[0]
+        count_minus1_ges = array_minus1_ges[0]
+        count_minus7_ges = array_minus7_ges[0]
+        count_minus31_ges = array_minus31_ges[0]
+        count_minus365_ges = array_minus365_ges[0]
 
-        sns.set(style="white", rc={"axes.facecolor": (0, 0, 0, 0)})
+        percent1 = round((count_minus1_neg / count_minus1_ges) * 100, 2)
+        percent7 = round((count_minus7_neg / count_minus7_ges) * 100, 2)
+        percent31 = round((count_minus31_neg / count_minus31_ges) * 100, 2)
+        percent365 = round((count_minus365_neg / count_minus365_ges) * 100, 2)
 
-        # Create the data
-        rs = np.random.RandomState(1979)
-        x = rs.randn(500)
-        g = np.tile(list("ABCDEFGHIJ"), 50)
-        df = pd.DataFrame(dict(x=x, g=g))
-        m = df.g.map(ord)
-        df["x"] += m
-
-        # Initialize the FacetGrid object
-        pal = sns.cubehelix_palette(10, rot=-.25, light=.7)
-        g = sns.FacetGrid(dfcsv, row="g", hue="g", aspect=15, height=.5, palette=pal)
-
-        # Draw the densities in a few steps
-        g.map(sns.kdeplot, "x", clip_on=False, shade=True, alpha=1, lw=1.5, bw=.2)
-        g.map(sns.kdeplot, "x", clip_on=False, color="w", lw=2, bw=.2)
-        g.map(plt.axhline, y=0, lw=2, clip_on=False)
-
-
-        # Define and use a simple function to label the plot in axes coordinates
-        def label(x, color, label):
-            ax = plt.gca()
-            ax.text(0, .2, label, fontweight="bold", color=color,
-                    ha="left", va="center", transform=ax.transAxes)
-
-
-        g.map(label, "x")
-
-        # Set the subplots to overlap
-        g.fig.subplots_adjust(hspace=-.25)
-
-        # Remove axes details that don't play well with overlap
-        g.set_titles("")
-        g.set(yticks=[])
-        g.despine(bottom=True, left=True)
-
-        g.savefig("WeekPlot.png")
-
-        sns.set(style="whitegrid")
-
-        #rs = np.random.RandomState(365)
-        #values = rs.randn(365, 4).cumsum(axis=0)
-        #dates = pd.date_range("1 1 2016", periods=365, freq="D")
-        values = df[(df.real_date > minus1)].count()
-        print(values)
-        hour = df.hour
-        print(hour)
-        data = pd.DataFrame(values, hour, columns=["Positiv", "Negativ", "Gesant"])
-        data = data.rolling(7).mean()
-
-        dayplot = sns.lineplot(data=data, palette="tab10", linewidth=2.5)
-        print(dayplot)
-        dayplotfigure = dayplot.get_figure()
-        dayplotfigure.savefig("DayPlot.png")
-
-        today = date.today()
-        strtoday = today.strftime("%d.%m.%Y")
-
+        # Create strings for reporting tiles
         slash = '/'
+        percent = '%'
         string_neg1 = str(count_minus1_neg)
-        string_pos1 = str(count_minus1_pos)
-        string1 = string_neg1 + slash + string_pos1
+        string_ges1 = str(count_minus1_ges)
+        string1 = string_neg1 + slash + string_ges1
         string_neg7 = str(count_minus7_neg)
-        string_pos7 = str(count_minus7_pos)
-        string7 = string_neg7 + slash + string_pos7
+        string_ges7 = str(count_minus7_ges)
+        string7 = string_neg7 + slash + string_ges7
         string_neg31 = str(count_minus31_neg)
-        string_pos31 = str(count_minus31_pos)
-        string31 = string_neg31 + slash + string_pos31
+        string_ges31 = str(count_minus31_ges)
+        string31 = string_neg31 + slash + string_ges31
         string_neg365 = str(count_minus365_neg)
-        string_pos365 = str(count_minus365_pos)
-        string365 = string_neg365 + slash + string_pos365
+        string_ges365 = str(count_minus365_ges)
+        string365 = string_neg365 + slash + string_ges365
+        string_percent1 = str(percent1) + percent
+        string_percent7 = str(percent7) + percent
+        string_percent31 = str(percent31) + percent
+        string_percent365 = str(percent365) + percent
 
+        # Create PDF
         pdf = FPDF()
         pdf.add_page()
         pdf.set_xy(0, 0)
-        pdf.image('Report_Template.png', x = 0, y = 0, w = 210, h = 0, type = '', link = '')
+
+        # Adding Layout
+        pdf.image('Report_Template.png', x=0, y=0, w=210, h=0, type='', link='')
         pdf.set_font('arial', '', 14)
+
+        # Adding Plots
         pdf.set_xy(108, 111)
-        pdf.image('DayPlot.png', x = None, y = None, w = 92, h = 0, type = '', link = '')
-        pdf.set_xy(19, 198)
-        pdf.image('WeekPlot.png', x = None, y = None, w = 81, h = 0, type = '', link = '')
-        pdf.set_xy(110, 198)
-        pdf.image('WeekPlot2.png', x = None, y = None, w = 81, h = 0, type = '', link = '')
-        pdf.set_xy(21, 127)
+        pdf.image('DayPlot.png', x=None, y=None, w=92, h=0, type='', link='')
+        pdf.set_xy(15, 196)
+        pdf.image('WeekPlot1.png', x=None, y=None, w=85, h=0, type='', link='')
+        pdf.set_xy(110, 196)
+        pdf.image('WeekPlot2.png', x=None, y=None, w=85, h=0, type='', link='')
+
+        # Adding tile kpis
+        pdf.set_xy(21, 132)
         pdf.cell(40, 10, str(string1))
-        pdf.set_xy(67, 127)
+        pdf.set_xy(67, 132)
         pdf.cell(40, 10, str(string7))
-        pdf.set_xy(21, 161)
+        pdf.set_xy(21, 167)
         pdf.cell(40, 10, str(string31))
-        pdf.set_xy(67, 161)
+        pdf.set_xy(67, 167)
         pdf.cell(40, 10, str(string365))
         pdf.set_xy(177, 75)
         pdf.cell(40, 10, strtoday)
-        pdf = pdf.output('HamburgAnalytica.pdf', 'F')
 
-        return pdf
+        pdf.set_font('arial', '', 20)
+        pdf.set_xy(21, 124)
+        pdf.cell(40, 10, str(string_percent1))
+        pdf.set_xy(67, 124)
+        pdf.cell(40, 10, str(string_percent7))
+        pdf.set_xy(21, 159)
+        pdf.cell(40, 10, str(string_percent31))
+        pdf.set_xy(67, 159)
+        pdf.cell(40, 10, str(string_percent365))
+        pdf.set_xy(177, 75)
 
-
-
+        # Save PDF
+        strtoday2 = today.strftime("%Y%m%d")
+        filename = 'Facebook_Report_' + str(strtoday2) + '.pdf'
+        pdffile = pdf.output(filename, 'F')
+        return(pdffile)
