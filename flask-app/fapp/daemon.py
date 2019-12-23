@@ -12,7 +12,8 @@ if RELOAD_FB:
 else:
     RELOAD_FB = 10 #60 * 60  # Repeat every hour if nothing set
 
-
+print("Relaod Time")
+print(RELOAD_FB)
 def generate_reports():
     print('Starting of thread :', threading.currentThread().name)
     time.sleep(RELOAD_FB)
