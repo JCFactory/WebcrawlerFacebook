@@ -21,7 +21,7 @@ from keras.preprocessing.text import Tokenizer
 from numpy import array
 from numpy import asarray
 from numpy import zeros
-#import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from keras.layers.convolutional import Conv1D
 from keras.layers.recurrent import LSTM
 import seaborn as sns
@@ -121,9 +121,8 @@ class RnnModel:
         TAG_RE = re.compile(r'<[^>]+>')
         return TAG_RE.sub('', text)
 
-
     def do_embedding(self):
-       # , self.model_Y, test_size=0.20, random_state=42)
+        # , self.model_Y, test_size=0.20, random_state=42)
         # Prepare embedding layer
         self.tokenizer = Tokenizer(num_words=20000)
         self.tokenizer.fit_on_texts(self.model_X_train + self.model_X_test)
@@ -158,7 +157,7 @@ class RnnModel:
 
         model = Sequential()
         model.add(Embedding(self.vocab_size, self.maxlen, weights=[self.embedding_matrix], input_length=self.maxlen,
-                                    trainable=False))
+                            trainable=False))
         model.add(Conv1D(128, 5, activation='relu'))
         model.add(MaxPooling1D(5))
         model.add(Conv1D(128, 5, activation='relu'))
@@ -166,12 +165,12 @@ class RnnModel:
         model.add(Dense(128, activation='relu'))
         # model.add(Dense(16, activation='relu'))
         model.add(Dense(units=1, kernel_initializer=init,
-                                 activation='sigmoid'))
+                        activation='sigmoid'))
         model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
         print(model.summary())
 
         bat_size = 32
-        max_epochs = 10
+        max_epochs = 2  # 10
         print("\nStarting training ")
         model.fit(self.model_X_train, self.model_Y_train, epochs=max_epochs,
                   batch_size=bat_size, shuffle=True, verbose=1)
@@ -181,7 +180,3 @@ class RnnModel:
               (loss_acc[0], loss_acc[1] * 100))
 
         self.model = model
-
-
-
-

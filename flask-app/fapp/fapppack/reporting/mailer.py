@@ -10,6 +10,7 @@ class Mailer:
         # # Send email
 
     def sendMail(self, summary, attachment_pdf = None):
+        print('attachment_pdf ', attachment_pdf)
         subject = "An email with attachment from Python"
         body = "This is an email with attachment sent from Python"
         receiver_email = "burghard.lachmann@gmail.com"
@@ -37,20 +38,20 @@ class Mailer:
             part.set_payload(attachment.read())
 
         # Encode file in ASCII characters to send by email
-        encoders.encode_base64(part)
+            encoders.encode_base64(part)
 
-        # Add header as key/value pair to attachment part
-        part.add_header(
-            "Content-Disposition",
-            f"attachment; filename= {filename}",
-        )
+            # Add header as key/value pair to attachment part
+            part.add_header(
+                "Content-Disposition",
+                f"attachment; filename= das-aktuelle-report.pdf",
+            )
 
-        # Add attachment to message and convert message to string
-        message.attach(part)
+            # Add attachment to message and convert message to string
+            message.attach(part)
         text = message.as_string()
 
         # Log in to server using secure context and send email
         context = ssl.create_default_context()
         with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-            self.server.login(sender_email, password)
-            self.server.sendmail(sender_email, receiver_email, text)
+            server.login(sender_email, password)
+            server.sendmail(sender_email, receiver_email, text)
