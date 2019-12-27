@@ -23,6 +23,7 @@ services:
     environment:
       - RELOAD_FB=5
       - REQUEST_SERVICE=kerasapp
+      - DAEMONIZE=1
     depends_on:
       - keras_app
 volumes:

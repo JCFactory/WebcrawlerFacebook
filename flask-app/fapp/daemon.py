@@ -9,6 +9,8 @@ import sys
 
 RELOAD_FB = os.environ.get('RELOAD_FB')
 REQUEST_SERVICE = os.environ.get('REQUEST_SERVICE')
+DAEMONIZE = os.environ.get('DAEMONIZE')
+DAEMONIZE = int(DAEMONIZE)
 if RELOAD_FB:
     RELOAD_FB = int(RELOAD_FB)
 else:
@@ -43,9 +45,12 @@ def index():
 # generate_reports()
 
 if __name__ == '__main__':
-    a = threading.Thread(target=generate_reports, name='Thread-Daemon', daemon=True)
-    a.start()
-    app.run(host="0.0.0.0", port=8082)
+    if DAEMONIZE:
+        a = threading.Thread(target=generate_reports, name='Thread-Daemon', daemon=True)
+        a.start()
+        app.run(host="0.0.0.0", port=8082)
+    else:
+        print("Check the ENV 'DAEMONIZE'")
     # generate_reports()
 # class App():
 #     def __init__(self):
