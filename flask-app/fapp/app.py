@@ -5,10 +5,14 @@ from fapppack.tf_model.training_model import RnnModel
 from fapppack.reporting.report import Report
 from pathlib import Path
 from keras.preprocessing.text import Tokenizer
+from pandas.plotting import register_matplotlib_converters
 
+
+register_matplotlib_converters()
 
 # Trainingsmodel
 
+static_folder = Path("./static/")
 train_csv = Path("./measuring-customer-happiness/train_hp.csv")
 fakecsv = Path("./FakeData.csv")
 test_csv = Path("./measuring-customer-happiness/test_hp.csv")
@@ -29,15 +33,20 @@ rnn_model.run()
 # FBApi
 
 def execute_reports(incremental=False):
+    print ('Start Rep')
     fbapi = FacebookApi(rnn_model)
     # Auswertung
     data = fbapi.analyze(incremental=incremental)
 
-    rep = Report(fakecsv.absolute(), data)
+    rep = Report(fakecsv.absolute(), data, static_folder=static_folder.absolute())
     summary = rep.execute_evaluation()
+    pdf = rep.generate_attachment()
     # Mailversand
+
+    print(pdf)
     mail = Mailer()
-    mail.sendMail(rep)
+    mail.sendMail(summary=summary, attachment_pdf=pdf)
+    print ('End Rep')
     return summary
 
 

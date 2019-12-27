@@ -1,4 +1,4 @@
-FROM continuumio/miniconda3
+FROM continuumio/miniconda3 as daemon
 
 USER root
 ENV DEBIAN_FRONTEND noninteractive
@@ -24,7 +24,10 @@ RUN ls -latr
 #ENTRYPOINT ["python"]
 #RUN ["bash", "-c", "source activate fbcrawler"]
 #RUN ["bash", "-c", "source activate fbcrawler"]
-CMD ["bash", "-c", "source activate fbcrawler  && python ./daemon.py && python ./app.py"]
+#CMD ["bash", "-c", "source activate fbcrawler  && python ./daemon.py"]
+CMD ["bash", "-c", "source activate fbcrawler  && python ./daemon.py"]
 
 #CMD [ "source activate flask_env && python ./reporting/app.py" ]
 
+FROM daemon as app
+CMD ["bash", "-c", "source activate fbcrawler  && python ./app.py"]

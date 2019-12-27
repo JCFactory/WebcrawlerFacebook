@@ -1,7 +1,10 @@
-version: '3'
+version: '3.4'
 services:
-  keras:
-    build: ./
+  keras_app:
+    container_name: kerasapp
+    build:
+      context: ./
+      target: app
     ports:
       - '8080:8080'
     volumes:
@@ -9,5 +12,18 @@ services:
       - conda-volume:/opt/conda/envs/
     environment:
       - RELOAD_FB=20
+  keras_daemon:
+    container_name: kerasdaemon
+    build:
+      context: ./
+      target: daemon
+    volumes:
+      - ./fapp:/app
+      - conda-volume:/opt/conda/envs/
+    environment:
+      - RELOAD_FB=5
+      - REQUEST_SERVICE=kerasapp
+    depends_on:
+      - keras_app
 volumes:
   conda-volume:
