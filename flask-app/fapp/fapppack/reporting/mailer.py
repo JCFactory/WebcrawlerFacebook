@@ -25,7 +25,7 @@ class Mailer:
         message["Bcc"] = receiver_email  # Recommended for mass emails
 
         # Add body to email
-        message.attach(MIMEText(body, "plain"))
+        message.attach(MIMEText(summary, "plain"))
 
 #         filename = "PM-BigData-6 V1.pdf"  # In same directory as script
         filename = attachment_pdf  # In same directory as script
@@ -55,3 +55,5 @@ class Mailer:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
             server.login(sender_email, password)
             server.sendmail(sender_email, receiver_email, text)
+
+

@@ -7,7 +7,6 @@ from pathlib import Path
 from keras.preprocessing.text import Tokenizer
 from pandas.plotting import register_matplotlib_converters
 
-
 register_matplotlib_converters()
 
 # Trainingsmodel
@@ -26,28 +25,29 @@ glove_files = [
     Path('./glove/glove.twitter.27B.50d.txt_05')
 ]
 rnn_model = RnnModel(train_csv.absolute(), test_csv.absolute(), glove_file.absolute(), glove_files=glove_files)
-
 rnn_model.run()
 
 
 # FBApi
 
 def execute_reports(incremental=False):
-    print ('Start Rep')
+    print('Start Rep')
     fbapi = FacebookApi(rnn_model)
     # Auswertung
     data = fbapi.analyze(incremental=incremental)
+    if data is not None:
+        rep = Report(fakecsv.absolute(), data, static_folder=static_folder.absolute())
+        summary = rep.execute_evaluation()
+        pdf = rep.generate_attachment()
+        # Mailversand
 
-    rep = Report(fakecsv.absolute(), data, static_folder=static_folder.absolute())
-    summary = rep.execute_evaluation()
-    pdf = rep.generate_attachment()
-    # Mailversand
-
-    print(pdf)
-    mail = Mailer()
-    mail.sendMail(summary=summary, attachment_pdf=pdf)
-    print ('End Rep')
-    return summary
+        print(pdf)
+        mail = Mailer()
+        mail.sendMail(summary=summary, attachment_pdf=pdf)
+        print('End Rep')
+        return summary
+    else:
+        return "No Data"
 
 
 execute_reports()
@@ -62,7 +62,7 @@ def index():
 
 @app.route('/report')
 def report():
-    return execute_reports()
+    return execute_reports(True)
 
 
 if __name__ == '__main__':
