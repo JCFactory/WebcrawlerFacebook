@@ -34,6 +34,10 @@ class Report:
             ## Negative Percent: {}
             ## Positive Percent: {}"""
 
+        print(self.report_data["df_comments"]["time"])
+        df123 = self.report_data["df_comments"]
+        csvfile = self.static_folder + "/export_dataframe.csv"
+        df123.to_csv(csvfile, index = None, sep = '|')
         if len(self.report_data['newcomments']) > 0:
             summary += "\n\nNew Comments are:"
             for comment in self.report_data['newcomments']:

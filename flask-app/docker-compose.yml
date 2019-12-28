@@ -21,7 +21,7 @@ services:
       - ./fapp:/app
       - conda-volume:/opt/conda/envs/
     environment:
-      - RELOAD_FB=5
+      - RELOAD_FB=3600
       - REQUEST_SERVICE=kerasapp
       - DAEMONIZE=1
     depends_on:
