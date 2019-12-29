@@ -11,8 +11,7 @@ class Mailer:
 
     def sendMail(self, summary, attachment_pdf = None, attachment_csv=None):
         print('attachment_pdf ', attachment_pdf)
-        subject = "An email with attachment from Python"
-        body = "This is an email with attachment sent from Python"
+        subject = "Facebook-Report von Hamburg Analytica"
         receiver_email = "burghard.lachmann@gmail.com"
         sender_email = "HH.Analytica@gmail.com"
         password = 'WduenPa!f19'
@@ -25,9 +24,10 @@ class Mailer:
         message["Bcc"] = receiver_email  # Recommended for mass emails
 
         # Add body to email
+        summary = """Sehr geehrter Herr Lachmann,
+        anbei finden Sie Ihren aktuellen Report von Facebook.""" + "\n\n" + summary + "\nViele Grüße\n\nIhr Hamburg Analytica Team"
         message.attach(MIMEText(summary, "plain"))
 
-#         filename = "PM-BigData-6 V1.pdf"  # In same directory as script
         # Open PDF file in binary mode
         if attachment_pdf:
             try:
