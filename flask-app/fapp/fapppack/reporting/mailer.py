@@ -25,7 +25,7 @@ class Mailer:
 
         # Add body to email
         summary = """Sehr geehrter Herr Lachmann,
-        anbei finden Sie Ihren aktuellen Report von Facebook.""" + "\n\n" + summary + "\nViele Grüße\n\nIhr Hamburg Analytica Team"
+        anbei finden Sie Ihren aktuellen Report von Facebook.""" + "\n\n" + summary + "\n\nViele Grüße\n\nIhr Hamburg Analytica Team"
         message.attach(MIMEText(summary, "plain"))
 
         # Open PDF file in binary mode
