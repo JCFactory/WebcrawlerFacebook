@@ -9,7 +9,7 @@ from email.mime.text import MIMEText
 class Mailer:
         # # Send email
 
-    def sendMail(self, summary, attachment_pdf = None):
+    def sendMail(self, summary, attachment_pdf = None, attachment_csv=None):
         print('attachment_pdf ', attachment_pdf)
         subject = "An email with attachment from Python"
         body = "This is an email with attachment sent from Python"
@@ -28,26 +28,52 @@ class Mailer:
         message.attach(MIMEText(summary, "plain"))
 
 #         filename = "PM-BigData-6 V1.pdf"  # In same directory as script
-        filename = attachment_pdf  # In same directory as script
-
         # Open PDF file in binary mode
-        with open(filename, "rb") as attachment:
-            # Add file as application/octet-stream
-            # Email client can usually download this automatically as attachment
-            part = MIMEBase("application", "octet-stream")
-            part.set_payload(attachment.read())
+        if attachment_pdf:
+            try:
+                with open(attachment_pdf, "rb") as attachment:
+                    # Add file as application/octet-stream
+                    # Email client can usually download this automatically as attachment
+                    part = MIMEBase("application", "octet-stream")
+                    part.set_payload(attachment.read())
 
-        # Encode file in ASCII characters to send by email
-            encoders.encode_base64(part)
+                # Encode file in ASCII characters to send by email
+                    encoders.encode_base64(part)
 
-            # Add header as key/value pair to attachment part
-            part.add_header(
-                "Content-Disposition",
-                f"attachment; filename= das-aktuelle-report.pdf",
-            )
+                    # Add header as key/value pair to attachment part
+                    part.add_header(
+                        "Content-Disposition",
+                        f"attachment; filename=Facebook_Analytics_Report.pdf",
+                    )
 
-            # Add attachment to message and convert message to string
-            message.attach(part)
+                    # Add attachment to message and convert message to string
+                    message.attach(part)
+            except IOError:
+                print ("File not Found")
+
+        if attachment_csv:
+            try:
+                with open(attachment_csv, "rb") as attachment:
+                    # Add file as application/octet-stream
+                    # Email client can usually download this automatically as attachment
+                    part = MIMEBase("application", "octet-stream")
+                    part.set_payload(attachment.read())
+
+                # Encode file in ASCII characters to send by email
+                    encoders.encode_base64(part)
+
+                    # Add header as key/value pair to attachment part
+                    part.add_header(
+                        "Content-Disposition",
+                        f"attachment; filename=Facebook_Comments_Results.csv",
+                    )
+
+                    # Add attachment to message and convert message to string
+                    message.attach(part)
+            except IOError:
+                print ("File not Found")
+
+
         text = message.as_string()
 
         # Log in to server using secure context and send email
