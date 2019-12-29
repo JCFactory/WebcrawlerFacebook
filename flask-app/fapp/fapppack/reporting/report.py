@@ -38,7 +38,7 @@ class Report:
 
         print(self.report_data["df_comments"]["time"])
         dfcsv = self.report_data["df_comments"]
-        csvfile = self.static_folder + "/export_dataframe.csv"
+        csvfile = self.static_folder + "/Facebook_Comments_Results.csv"
         dfcsv.to_csv(csvfile, index = None, sep = '|')
         if len(self.report_data['newcomments']) > 0:
             summary += "\n\nNew Comments are:"
@@ -154,7 +154,7 @@ class Report:
         weekplot1.axes[7, 0].set_xlabel('Wochenstunde 7x24')
         weekplot1.despine(bottom=True, left=True)
 
-        weekplot1.savefig("WeekPlot1.png", bbox_inches='tight')
+        weekplot1.savefig(self.static_folder + "/WeekPlot1.png", bbox_inches='tight')
 
         # Creates the weekplot 2
         weekplot2 = sns.FacetGrid(df_week2, row="kw", hue="kw", aspect=10, height=0.75, palette=pal)
@@ -176,7 +176,7 @@ class Report:
         weekplot2.axes[7, 0].set_xlabel('Wochenstunde 7x24')
         weekplot2.despine(bottom=True, left=True)
 
-        weekplot2.savefig("WeekPlot2.png", bbox_inches='tight')
+        weekplot2.savefig(self.static_folder + "/WeekPlot2.png", bbox_inches='tight')
 
     def dayplot(self, df):
         # Prepares the dataframe for the dayplot
@@ -213,11 +213,12 @@ class Report:
         dayplot.set_ylabel('Anzahl')
         dayplot.set_xlabel('Datum/Uhrzeit')
         dayplotfigure = dayplot.get_figure()
-        dayplotfigure.savefig('DayPlot.png', bbox_inches='tight')
+        dayplotfigure.savefig(self.static_folder + '/DayPlot.png', bbox_inches='tight')
 
     def pdfgenerator(self, df):
         # Todays date
-        today = date.today()
+        today = datetime.now(timezone.utc)
+        now = datetime.now(timezone.utc)
         strtoday = today.strftime("%d.%m.%Y")
         df['real_datetime'] = pd.to_datetime(df['real_datetime'], utc=True)
 
@@ -228,20 +229,20 @@ class Report:
         minus365 = datetime.now(timezone.utc) - timedelta(days=365)
 
         # Counting different timeframes for the reporting tiles
-        array_minus1_neg = df[(df.real_datetime > minus1) & (df.sentiment == 2)].count()
-        array_minus7_neg = df[(df.real_datetime > minus7) & (df.sentiment == 2)].count()
-        array_minus31_neg = df[(df.real_datetime > minus31) & (df.sentiment == 2)].count()
-        array_minus365_neg = df[(df.real_datetime > minus365) & (df.sentiment == 2)].count()
+        array_minus1_neg = df[(df.real_datetime > minus1) & (df.real_datetime < now) & (df.sentiment == 2)].count()
+        array_minus7_neg = df[(df.real_datetime > minus7) & (df.real_datetime < now) & (df.sentiment == 2)].count()
+        array_minus31_neg = df[(df.real_datetime > minus31) & (df.real_datetime < now) & (df.sentiment == 2)].count()
+        array_minus365_neg = df[(df.real_datetime > minus365) & (df.real_datetime < now) & (df.sentiment == 2)].count()
 
         count_minus1_neg = array_minus1_neg[0]
         count_minus7_neg = array_minus7_neg[0]
         count_minus31_neg = array_minus31_neg[0]
         count_minus365_neg = array_minus365_neg[0]
 
-        array_minus1_ges = df[(df.real_datetime > minus1)].count()
-        array_minus7_ges = df[(df.real_datetime > minus7)].count()
-        array_minus31_ges = df[(df.real_datetime > minus31)].count()
-        array_minus365_ges = df[(df.real_datetime > minus365)].count()
+        array_minus1_ges = df[(df.real_datetime > minus1) & (df.real_datetime < now)].count()
+        array_minus7_ges = df[(df.real_datetime > minus7) & (df.real_datetime < now)].count()
+        array_minus31_ges = df[(df.real_datetime > minus31) & (df.real_datetime < now)].count()
+        array_minus365_ges = df[(df.real_datetime > minus365) & (df.real_datetime < now)].count()
 
         count_minus1_ges = array_minus1_ges[0]
         count_minus7_ges = array_minus7_ges[0]
