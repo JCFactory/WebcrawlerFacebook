@@ -41,9 +41,10 @@ def execute_reports(incremental=False):
         pdf = rep.generate_attachment()
         # Mailversand
 
+        attachment_csv = static_folder.absolute().as_posix() + "/Facebook_Comments_Results.csv"
         print(pdf)
         mail = Mailer()
-        mail.sendMail(summary=summary, attachment_pdf=pdf)
+        mail.sendMail(summary=summary, attachment_pdf=pdf, attachment_csv=attachment_csv)
         print('End Rep')
         return summary
     else:

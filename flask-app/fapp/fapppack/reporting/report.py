@@ -39,7 +39,7 @@ class Report:
         print(self.report_data["df_comments"]["time"])
         dfcsv = self.report_data["df_comments"]
         csvfile = self.static_folder + "/Facebook_Comments_Results.csv"
-        dfcsv.to_csv(csvfile, index = None, sep = '|')
+        dfcsv.to_csv(csvfile, index = None, sep = ';')
         if len(self.report_data['newcomments']) > 0:
             summary += "\n\nNew Comments are:"
             for comment in self.report_data['newcomments']:
@@ -62,10 +62,6 @@ class Report:
         ax = plt.gca()
         ax.text(0, .2, label, fontweight="bold", color=color,
                 ha="left", va="center", transform=ax.transAxes)
-
-    # Variablen
-    def execute_fakereport(self):
-        return pdf
 
     def dataimport(self):
         # Create date parameter
