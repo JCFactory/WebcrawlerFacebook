@@ -40,10 +40,10 @@ class Report:
         dfcsv = self.report_data["df_comments"]
         csvfile = self.static_folder + "/Facebook_Comments_Results.csv"
         dfcsv.to_csv(csvfile, index = None, sep = ';')
-        if len(self.report_data['newcomments']) > 0:
-            summary += "\n\nNew Comments are:"
-            for comment in self.report_data['newcomments']:
-                summary += "\n\t"+comment
+        # if len(self.report_data['newcomments']) > 0:
+        #     summary += "\n\nNew Comments are:"
+        #     for comment in self.report_data['newcomments']:
+        #         summary += "\n\t"+comment
 
         return summary.format(self.report_data['total'], self.report_data['positive'], self.report_data['negative'],
                               self.report_data['negativepercent'], self.report_data['positivepercent'])
