@@ -170,7 +170,7 @@ class RnnModel:
         print(model.summary())
 
         bat_size = 32
-        max_epochs = 2  # 10
+        max_epochs = 10  # 10
         print("\nStarting training ")
         model.fit(self.model_X_train, self.model_Y_train, epochs=max_epochs,
                   batch_size=bat_size, shuffle=True, verbose=1)
